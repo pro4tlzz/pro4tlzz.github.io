@@ -1,7 +1,30 @@
 <!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/getCloudflareZoneRecords.js thanks to Gabriel Sroka for helping me!-->
-<!-- To Do - HTML -->
-javascript:
-/* getCloudFlareZoneRecords.js */
+<!doctype html>
+<html>
+<head>
+<title>Get Cloudflare Zone Records</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Get Cloudflare Zone Records</h1>
+<p>This tool get Cloudflare Zone Records.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Get Cloudflare Zone Records</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Open Cloudflare and sign in.
+</ol>
+<br>
+<a href=https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfObjectsXML.html>Source code</a>
+<script id=code>
 (async function () {
     const zoneId = getZoneId();
     if (zoneId) {
@@ -39,4 +62,10 @@ javascript:
         const records = res.result;
         return records;
     }
-})();
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>
