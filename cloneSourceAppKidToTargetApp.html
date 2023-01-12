@@ -1,7 +1,35 @@
 <!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/cloneSourceAppKidToTargetApp.js thanks to Gabriel Sroka for helping me!-->
-<!-- To Do - HTML -->
-javascript:
-/* bookmarklet name: /Clone SAML# */
+<!doctype html>
+<html>
+<head>
+<title>Clone application signing keys to another application</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Clone application signing keys to another application</h1>
+<p>This tool will clone application signing keys to another applicatiom. You might have a use case for having 2 or more SAML applications in Okta which need to use the same signing certificate. The Okta Apps API allows you to copy an application signing key to another app. Here is a script which can clone the signing certificate from an application and assign it to another application.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Clone application signing keys to another applications</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Create the target SAML app in Okta and configure the settings for the application (Only configure the app in Okta, not in the Service Provider).
+<li>Browse to the primary application in Okta Admin from where you want to clone the signing certificate.
+<li>Click the created bookmark to run the script.
+<li>Enter the id of the Target App when prompted.
+<li>Profit.
+<a href="https://github.com/pro4tlzz/ITSupportTools/tree/main/javascript#clone-application-signing-keys-to-another-application">See this for picture guide</a>
+</ol>
+<br>
+<a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/cloneSourceAppKidToTargetApp.html>Source code</a>
+<script id=code>javascript:
 (async function() {
     var targetAppId = prompt("Enter the target application id");
     if (!targetAppId) {
@@ -67,5 +95,10 @@ javascript:
             return pathparts[5];
         }
     }
-}
-)();
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>
