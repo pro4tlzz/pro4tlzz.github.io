@@ -63,10 +63,10 @@
                 response = await fetch(url, { method: 'POST', headers });
                 const result = await response.json();
                 console.log(result);
-                if (response.status == 200) {
+                if (response.ok) {
                     window.location.reload();
                 } else {
-                    prompt('Request failed with error code ' + response.status);
+                    alert('Request failed with error code ' + response.status);
                 }
 
             }
