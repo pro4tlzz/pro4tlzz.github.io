@@ -58,9 +58,9 @@ body {
         if (obj == 'policy') {
             var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
         } else if (obj == 'computergroup' ) {
-            var downloadItemButton = document.querySelector("#main-ui-view > div > div > jamf-legacy-view > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
         } else if (obj == 'patch-policy') {
-            var downloadItemButton = document.querySelector("#main-ui-view > div > div > div > jamf-legacy-view > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
         }
         console.log(downloadItemButton);
         downloadItemButton.addEventListener("click", main);
