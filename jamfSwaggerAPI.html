@@ -1,0 +1,66 @@
+<!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/cloneSourceAppKidToTargetApp.js thanks to Gabriel Sroka for helping me!-->
+<!doctype html>
+<html>
+<head>
+<title>Jamf Swagger API, easy authentication</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Jamf Swagger API, easy authentication</h1>
+<p>This tool will set your Jamf Pro Swagger API requests to use the local api token</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Jamf Swagger API, easy authentication</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Navigate to the classic or new API.
+<li>Click the created bookmark to run the script.
+<li>Profit.
+</ol>
+<br>
+<a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamfSwaggerAPI.html>Source code</a>
+<script id=code>javascript:
+(async function() {
+    function getAccessToken() {
+    
+    const authInfo = JSON.parse(localStorage.authToken);
+    const statusTextElement = document.getElementById('status-text');
+    
+    if (authInfo) {
+        statusTextElement.style.color = 'green';
+        statusTextElement.textContent = 'Authorized. Token successfully generated!';
+        return authInfo.token;
+    } else {
+        statusTextElement.style.color = 'red';
+        statusTextElement.textContent = 'Authorization failed.';
+        prompt('Couldn\'t find api token, maybe refresh page');
+    }
+    }
+
+    function getAPISpec() {
+        var path = location.pathname;
+        var pathparts = path.split('/');
+        if (path.match("classicapi/")) {
+             ui.preauthorizeApiKey("Bearer", "Bearer " + authToken);
+        }
+        else {
+            ui.preauthorizeApiKey("Bearer", authToken);
+        }
+    }
+
+    authToken = getAccessToken();
+    getAPISpec();
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>
