@@ -2,6 +2,7 @@
 <!doctype html>
 <html>
 <head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>Clone application signing keys to another application</title>
 <style>
 body {
@@ -29,9 +30,9 @@ body {
 </ol>
 <br>
 <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/cloneSourceAppKidToTargetApp.html>Source code</a>
-<script id=code>javascript:
+<script id=code>
 (async function() {
-    var targetAppId = prompt("Enter the target application id");
+    const targetAppId = prompt("Enter the target application id");
     if (!targetAppId) {
         alert("No value provided");
         return;
@@ -89,8 +90,8 @@ body {
 
     /* from Rockstar by Gabriel Sroka https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/rockstar/rockstar.js#L767 */
     function getAppId() {
-        var path = location.pathname;
-        var pathparts = path.split('/');
+        const path = location.pathname;
+        const pathparts = path.split('/');
         if (path.match("admin/app") && (pathparts.length == 6 || pathparts.length == 7)) {
             return pathparts[5];
         }
