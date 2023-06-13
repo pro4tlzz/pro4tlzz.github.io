@@ -2,6 +2,7 @@
 <!doctype html>
 <html>
 <head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
 <title>Export Jamf Objects XML</title>
 <style>
 body {
@@ -52,18 +53,17 @@ body {
         return;
     }
 
+    addDownloadItemButton(obj);
+
     function addDownloadItemButton(obj){
-        var newButton = document.createElement('download-item-button');
+        const newButton = document.createElement('download-item-button');
         newButton.innerHTML = '<div [j-navigation-tooltip]="{ shortcut: \'CMD-D\' }" > <button id="download-item-button" type="button" class="download-jamf-button-rockstar" translate="DOWNLOAD" onclick=main()>Download item</button></div>';
-        if (obj == 'policy') {
-            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
-        } else if (obj == 'computergroup' ) {
-            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
-        } else if (obj == 'patch-policy') {
-            var downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
-        }
+        const downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
         console.log(downloadItemButton);
-        downloadItemButton.addEventListener("click", main);
+        downloadItemButton.addEventListener("click", function () {
+            const accessToken = getAccessToken();
+            getObject(accessToken);
+        });
     }
 
     function getAccessToken() {
@@ -76,13 +76,13 @@ body {
     }
 
     async function getObject(accessToken) {
-        url = folder + '/JSSResource/' + path + '/id/' + id;
-        headers = {
+        const url = folder + '/JSSResource/' + path + '/id/' + id;
+        const headers = {
             'accept': 'application/xml',
             'content-type': 'applicaton/xml',
             'authorization': 'Bearer ' + accessToken
         };
-        response = await fetch(url, {headers});
+        const response = await fetch(url, {headers});
         const str = await response.text();
         const indented = indentXml(str, 4);
         const filename = obj + '-' + id + '.xml';
@@ -109,14 +109,6 @@ body {
         a.download = filename;
         a.click();
     }
-
-    addDownloadItemButton(obj);
-
-    function main() {
-        const accessToken = getAccessToken();
-        getObject(accessToken);
-    }
-
 })
 </script>
 <script>

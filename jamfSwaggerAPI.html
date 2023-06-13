@@ -25,37 +25,34 @@ body {
 </ol>
 <br>
 <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamfSwaggerAPI.html>Source code</a>
-<script id=code>javascript:
+<script id=code>
 (async function() {
+    const authToken = getAccessToken();
+    getAPISpec();
+
     function getAccessToken() {
-    
-    const authInfo = JSON.parse(localStorage.authToken);
-    const statusTextElement = document.getElementById('status-text');
-    
-    if (authInfo) {
-        statusTextElement.style.color = 'green';
-        statusTextElement.textContent = 'Authorized. Token successfully generated!';
-        return authInfo.token;
-    } else {
-        statusTextElement.style.color = 'red';
-        statusTextElement.textContent = 'Authorization failed.';
-        prompt('Couldn\'t find api token, maybe refresh page');
-    }
+        const authInfo = JSON.parse(localStorage.authToken);
+        const statusTextElement = document.getElementById('status-text');
+        
+        if (authInfo) {
+            statusTextElement.style.color = 'green';
+            statusTextElement.textContent = 'Authorized. Token successfully generated!';
+            return authInfo.token;
+        } else {
+            statusTextElement.style.color = 'red';
+            statusTextElement.textContent = 'Authorization failed.';
+            prompt('Couldn\'t find api token, maybe refresh page');
+        }
     }
 
     function getAPISpec() {
-        var path = location.pathname;
-        var pathparts = path.split('/');
+        const path = location.pathname;
         if (path.match("classicapi/")) {
-             ui.preauthorizeApiKey("Bearer", "Bearer " + authToken);
-        }
-        else {
+            ui.preauthorizeApiKey("Bearer", "Bearer " + authToken);
+        } else {
             ui.preauthorizeApiKey("Bearer", authToken);
         }
     }
-
-    authToken = getAccessToken();
-    getAPISpec();
 })
 </script>
 <script>

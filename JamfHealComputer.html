@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
     <title>Jamf Heal Computer</title>
     <style>
         body {
@@ -29,62 +30,55 @@
     </ol>
     <br>
     <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/JamfHealComputer.html>Source code</a>
-    <script id=code>
-        (async function () {
+<script id=code>
+(async function () {
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+        alert('Go to a computer record first');
+        return;
+    }
 
-            const id = new URLSearchParams(location.search).get('id');
-            if (!id) {
-                alert('Go to a computer record first');
-                return;
-            }
+    addHealComputerButton();
 
-            function addHealComputerButton() {
-                var newButton = document.createElement('heal-computer-button');
-                newButton.innerHTML = '<li class="shrink"> <a id="HealComputer" class="mdmCommandButton jamf-button" data-test-id="command-heal-computer"> <span id="spanHealComputer" translate="MANAGEMENT_COMMAND_HEAL_COMPUTER" class="ng-scope">Heal Computer</span>  </a> </li>';
-                const healComputerButton = document.querySelector('#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe').contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
-                healComputerButton.addEventListener("click", main);
-            }
+    function addHealComputerButton() {
+        const newButton = document.createElement('heal-computer-button');
+        newButton.innerHTML = '<li class="shrink"> <a id="HealComputer" class="mdmCommandButton jamf-button" data-test-id="command-heal-computer"> <span id="spanHealComputer" translate="MANAGEMENT_COMMAND_HEAL_COMPUTER" class="ng-scope">Heal Computer</span>  </a> </li>';
+        const healComputerButton = document.querySelector('#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe').contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
+        healComputerButton.addEventListener("click", function () {
+            const accessToken = getAccessToken();
+            healComputer(accessToken);
+        });
+    }
 
-            function getAccessToken() {
-                const authInfo = JSON.parse(localStorage.authToken);
-                if (authInfo) {
-                    return authInfo.token;
-                } else {
-                    prompt('Couldn\'t find api token, maybe refresh page');
-                }
-            }
-
-            async function healComputer(accessToken) {
-
-                url = '/api/v1/jamf-management-framework/redeploy/' + id;
-                headers = {
-                    'accept': 'application/json',
-                    'authorization': 'Bearer ' + accessToken
-                };
-                response = await fetch(url, { method: 'POST', headers });
-                const result = await response.json();
-                console.log(result);
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Request failed with error code ' + response.status);
-                }
-
-            }
-
-            addHealComputerButton();
-
-            function main() {
-                const accessToken = getAccessToken();
-                healComputer(accessToken);
-            }
-
+    function getAccessToken() {
+        const authInfo = JSON.parse(localStorage.authToken);
+        if (authInfo) {
+            return authInfo.token;
+        } else {
+            prompt('Couldn\'t find api token, maybe refresh page');
         }
-        )
-    </script>
-    <script>
-        bm.href = 'javascript:' + code.innerText + '();';
-    </script>
+    }
+
+    async function healComputer(accessToken) {
+        const url = '/api/v1/jamf-management-framework/redeploy/' + id;
+        const headers = {
+            'accept': 'application/json',
+            'authorization': 'Bearer ' + accessToken
+        };
+        const response = await fetch(url, { method: 'POST', headers });
+        const result = await response.json();
+        console.log(result);
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Request failed with error code ' + response.status);
+        }
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
 </body>
 
 </html>
