@@ -12,7 +12,7 @@ body {
 </head>
 <body>
 <h1>Evaluate Unpublished Okta Group Rules</h1>
-<p>This tool will evaiuate an unpublished Okta group rule against a group of users</p>
+<p>This tool will evaiuate an unpublished Okta group rule against a group of users or a single user</p>
 <b>Setup</b>
 <ol>
 <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
@@ -22,7 +22,7 @@ body {
 <b>Usage</b>
 <ol>
 <li>Copy a group rule expression to your clipboard.
-<li>Browse to a group of Okta users to evaluate the rule against.
+<li>Browse to a group of Okta users to evaluate the rule against or browse to a single user.
 <li>Click the created bookmark.
 <li>Paste from the clipboard the group rule when prompted.
 <li>Open the browser console for results.
@@ -36,38 +36,59 @@ body {
         'content-type': 'application/json',
         'X-Okta-XsrfToken': document.querySelector('#_xsrfToken').innerText
     };
-    
+
     const groupId = getGroupId();
+    const userId = getUserId();
+    if (groupId === undefined && userId === undefined) {
+        alert('Please browse to a group or user');
+        return;
+    }
     const groupRule = getGroupRule();
-
-    if (!groupId || !groupRule) return;
-
-    const groupMembers = await getGroupMembers(groupId);
     const results = [];
 
-    for (const member of groupMembers) {
-        const eval = await evalGroupRule(groupRule, member);
-        
-        const data = {
-            userId: member.id,
-            username: member.profile.login,
-            ruleValue: groupRule,
-            evalResult: eval
-        };
-        
-        results.push(data);
+    if(groupRule !== false) {
+        if (groupId){
+            const groupMembers = await getGroupMembers(groupId);
+            for (const member of groupMembers) {
+                const eval = await evalGroupRule(groupRule, member);
+                const data = {
+                    userId: member.id,
+                    username: member.profile.login,
+                    ruleValue: groupRule,
+                    evalResult: eval
+                };
+                results.push(data);
+            }
+        } else {
+            const user = await getUser(userId);
+            const eval = await evalGroupRule(groupRule, user);
+            const data = {
+                userId: user.id,
+                username: user.profile.login,
+                ruleValue: groupRule,
+                evalResult: eval
+            };
+            results.push(data);
+        }
     }
 
     console.table(results);
-
     alert('Please open browser console for results, Option + ⌘ + J (on macOS), or Shift + CTRL + J (on Windows/Linux)');
 
     /* from Rockstar https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/rockstar/rockstar.js#L774 */
     function getGroupId() {
         var path = location.pathname;
         var pathparts = path.split('/');
-        if (path.match("admin/group") && (pathparts.length == 4)) {
+        if (path.match('admin/group') && (pathparts.length == 4)) {
             return pathparts[3];
+        }
+    }
+
+    function getUserId() {
+        var path = location.pathname;
+        var pathparts = path.split('/');
+        if (path.match('admin/user') && (pathparts.length == 6)) {
+            return pathparts[5];
         }
     }
 
@@ -76,7 +97,7 @@ body {
         if (groupRule) {
             return groupRule;
         } else {
-            alert("No value provided");
+            alert('No value provided');
             return false;
         }
     }
@@ -94,14 +115,22 @@ body {
         return groupMembers;
     }
 
+    async function getUser(userId) {
+        var groupMembers = [];
+        var url = '/api/v1/users/' + userId;
+        const r = await fetch(url, {headers});
+        const user = await r.json();
+        return user;
+    }
+
     async function evalGroupRule(rule, user) {
         const ruleValue = rule;
         const url = '/api/v1/internal/expression/eval';        
         const body = JSON.stringify([{
-            type: "urn:okta:expression:1.0",
+            type: 'urn:okta:expression:1.0',
             value: ruleValue,
             targets: {user: user.id},
-            operation: "CONDITION"
+            operation: 'CONDITION'
         }]);
         
         const r = await fetch(url, {method: 'post', body, headers});
