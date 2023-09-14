@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+<title>Enable automatic authenthication for Jamf Swagger API Docs page</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Enable automatic authenthication for Jamf Swagger API Docs page</h1>
+<p>This tool will set your Jamf Pro Swagger API requests on the docs page to use the local Jamf API token.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Enable automatic authenthication for Jamf Swagger API Docs page</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Navigate to the classic or new API.
+<li>Click the created bookmark to run the script.
+<li>Profit.
+</ol>
+<br>
+<a href=https://github.com/pro4tlzz/github.pro4tlzz.com/blob/main/jamf/EnableAutomaticAuthenticationforJamfSwaggerAPIDocsPage.html>Source code</a>
+<script id=code>
+(async function() {
+    const authToken = getAccessToken();
+    getAPISpec();
+
+    function getAccessToken() {
+        const authInfo = JSON.parse(localStorage.authToken);
+        const statusTextElement = document.getElementById('status-text');
+        
+        if (authInfo) {
+            statusTextElement.style.color = 'green';
+            statusTextElement.textContent = 'Authorized. Token successfully generated!';
+            return authInfo.token;
+        } else {
+            statusTextElement.style.color = 'red';
+            statusTextElement.textContent = 'Authorization failed.';
+            alert('Couldn\'t find api token, maybe refresh page');
+        }
+    }
+
+    function getAPISpec() {
+        const path = location.pathname;
+        if (path.match("classicapi/")) {
+            ui.preauthorizeApiKey("Bearer", "Bearer " + authToken);
+        } else {
+            ui.preauthorizeApiKey("Bearer", authToken);
+        }
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>
