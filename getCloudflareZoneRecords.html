@@ -1,75 +1,17 @@
-<!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/getCloudflareZoneRecords.js thanks to Gabriel Sroka for helping me!-->
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-<title>Get Cloudflare Zone Records</title>
-<style>
-body {
-    font-family: sans-serif;
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta http-equiv="refresh" content="0; URL='https://github.pro4tlzz.com'" /> -->
+    <script type="text/javascript">
+        window.location.href = "https://github.pro4tlzz.com/cloudflare/GetCloudflareZoneRecords.html"
+    </script>
+    <title>404 - 301 redirect</title>
 </head>
-<body>
-<h1>Get Cloudflare Zone Records</h1>
-<p>This tool get Cloudflare Zone Records.</p>
-<b>Setup</b>
-<ol>
-<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Get Cloudflare Zone Records</a> to the bookmarks toolbar.
-</ol>
-<br>
-<b>Usage</b>
-<ol>
-<li>Browse to the Cloudflare Dashboard and then the Overview page of the domain you want to see DNS records for.
-<li>If you haven't browsed to your the Overview page then copy the zone id.
-<li>Click the created bookmark to run the script. and enter the zone id when prompted.
-<li>Profit and see the DNS records.
-</ol>
-<br>
-<a href=https://github.com/pro4tlzz/github.pro4tlzz.com/blob/main/getCloudflareZoneRecords.html>Source code</a>
-<p>Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/getCloudflareZoneRecords.js thanks to Gabriel Sroka for helping me!</p>
-<script id=code>
-(async function () {
-    const zoneId = getZoneId();
-    if (zoneId) {
-        const atok = await getToken();    
-        const records = await getZoneRecords(atok, zoneId);
-        console.table(records);
-        alert('Please open browser console for results, Option + ⌘ + J (on macOS), or Shift + CTRL + J (on Windows/Linux)');
-    } else {
-        console.log('No zone id provided');
-    }
 
-    function getZoneId() {
-        var zoneId = document.querySelector('pre')?.innerHTML;
-        if (!zoneId) {
-            zoneId = prompt('Please enter zone id:');
-        }
-        return zoneId;
-    }    
-        
-    async function getToken() {
-        const url = '/api/v4/system/bootstrap';
-        const r = await fetch(url);
-        const res = await r.json();
-        const token = res.result.data.atok;
-        return token;
-    }
+<body></body>
 
-    async function getZoneRecords(atok, zoneId) {
-        const url = '/api/v4/zones/' + zoneId + '/dns_records?per_page=50';
-        const headers = {
-            'x-atok': atok
-        };
-        const r = await fetch(url, {headers});
-        const res = await r.json();
-        const records = res.result;
-        return records;
-    }
-})
-</script>
-<script>
-bm.href = 'javascript:' + code.innerText + '();';
-</script>
-</body>
 </html>

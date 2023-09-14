@@ -1,0 +1,148 @@
+<!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/evalGroupRule.js thanks to Gabriel Sroka for helping me!-->
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+<title>Test Okta Group Rules</title>
+<style>
+body {
+    font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+<h1>Test Okta Group Rules</h1>
+<p>This tool will test an Okta group rule against a group of users.</p>
+<b>Setup</b>
+<ol>
+<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
+<li>Drag/drop this <a id=bm>Test Okta Group Rules</a> to the bookmarks toolbar.
+</ol>
+<br>
+<b>Usage</b>
+<ol>
+<li>Use the network tab or Rockstar to find the ID of a group rule.
+<li>Browse to a group of Okta users to test the rule against.
+<li>Click the created bookmark.
+<li>Enter the id of the group rule when prompted.
+<li>Open the browser console for results.
+<a href="https://github.com/pro4tlzz/ITSupportTools/tree/main/javascript#clone-application-signing-keys-to-another-application">See this for picture guide</a>
+</ol>
+<br>
+<a href=https://github.com/pro4tlzz/github.pro4tlzz.com/blob/main/okta/TestGroupRule.html>Source code</a>
+<script id=code>
+(async function () {
+    const headers = {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'X-Okta-XsrfToken': document.querySelector('#_xsrfToken').innerText
+    };
+    
+    const groupId = getGroupId();
+    const groupRuleId = getGroupRuleId();
+
+    if (!groupId || !groupRuleId) return;
+
+    const groupMembers = await getGroupMembers(groupId);
+    const rule = await getGroupRule(groupRuleId);
+    const results = [];
+
+    for (const member of groupMembers) {
+        const eval = await evalGroupRule(rule, member);
+        
+        const data = {
+            userId: member.id,
+            username: member.profile.login,
+            ruleValue: rule.conditions.expression.value,
+            evalResult: eval
+        };
+        
+        results.push(data);
+    }
+
+    console.table(results);
+
+    alert('Please open browser console for results, Option + ⌘ + J (on macOS), or Shift + CTRL + J (on Windows/Linux)');
+
+    /* from Rockstar https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/rockstar/rockstar.js#L774 */
+    function getGroupId() {
+        var path = location.pathname;
+        var pathparts = path.split('/');
+        if (path.match("admin/group") && (pathparts.length == 4)) {
+            return pathparts[3];
+        }
+    }
+
+    function getGroupRuleId() {
+        const groupRuleId = prompt('Please enter the group rule id');
+        if (groupRuleId) {
+            return groupRuleId;
+        } else {
+            alert("No value provided");
+            return false;
+        }
+    }
+    
+    async function getGroupRule(groupRuleId) {
+        const url = '/api/v1/groups/rules/' + groupRuleId;
+        const r = await fetch(url, {headers});
+        const rule = await r.json();
+        return rule;
+    }
+
+    async function getGroupMembers(groupId) {
+        var groupMembers = [];
+        var url = '/api/v1/groups/' + groupId + '/users?limit=200';
+        while (url) {
+            const r = await fetch(url, {headers});
+            const members = await r.json();
+            groupMembers = groupMembers.concat(members);
+            await sleep(r, 10);
+            url = r.headers.get('link')?.match('<https://[^/]+(/[^>]+)>; rel="next"')?.[1];
+        }
+        return groupMembers;
+    }
+
+    async function evalGroupRule(rule, user) {
+        const ruleValue = rule.conditions.expression.value;
+        const url = '/api/v1/internal/expression/eval';        
+        const body = JSON.stringify([{
+            type: "urn:okta:expression:1.0",
+            value: ruleValue,
+            targets: {user: user.id},
+            operation: "CONDITION"
+        }]);
+        
+        const r = await fetch(url, {method: 'post', body, headers});
+        const eval = await r.json();
+        const result = eval[0].result;
+        await sleep(r, 10);
+        
+        return result;
+    }
+
+    async function sleep(r, limitRemaining) {
+        const rateLimit = r.headers.get('x-rate-limit-limit');
+        const rateLimitRemaining = r.headers.get('x-rate-limit-remaining');
+        const rateLimitReset = r.headers.get('x-rate-limit-reset');
+        
+        var rateLimitResetUTC = new Date(0);
+        rateLimitResetUTC.setUTCSeconds(rateLimitReset);
+        const now = Date.now();
+
+        /* Limit like okta_api.py https://github.com/gabrielsroka/okta_api/blob/master/okta_api.py#L148 */
+        if (rateLimitRemaining < limitRemaining) {
+            while ( rateLimitReset > now ) {
+                console.log('Sleeping due to less than ' + limitRemaining +' requests left. Limit : '+ rateLimit + ' Remaining : ' + rateLimitRemaining + ' Reset : ' + rateLimitResetUTC);
+                await new Promise(r => setTimeout(r, 2000));
+                now = Date.now();
+            }
+        }
+    }
+})
+</script>
+<script>
+bm.href = 'javascript:' + code.innerText + '();';
+</script>
+</body>
+</html>

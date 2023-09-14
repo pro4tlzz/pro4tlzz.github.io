@@ -1,118 +1,17 @@
-<!-- Original source from https://github.com/pro4tlzz/gabrielsroka.github.io/blob/passwordless-jamf-xml-export/ExportJamfObjectsXML.html thanks to Gabriel Sroka for helping me!-->
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>Export Jamf Objects XML</title>
-<style>
-body {
-    font-family: sans-serif;
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta http-equiv="refresh" content="0; URL='https://github.pro4tlzz.com'" /> -->
+    <script type="text/javascript">
+        window.location.href = "https://github.pro4tlzz.com/jamf/DownloadJamfObjectsXML.html"
+    </script>
+    <title>404 - 301 redirect</title>
 </head>
-<body>
-<h1>Export Jamf Objects XML</h1>
-<p>This tool will export Jamf objects (policies, computer groups & patch policies) to XML.</p>
-<b>Setup</b>
-<ol>
-<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Export Jamf Objects v1</a> to the bookmarks toolbar.
-</ol>
-<br>
-<b>Usage</b>
-<ol>
-<li>Open Jamf and sign in.
-<li>Select a Policy or a Smart Computer Group.
-<li>Click the "Export Jamf" button from your bookmarks toolbar. 
-<li> Click the "Download Item" button in the bottom right of an object.
-</ol>
-<br>
-<a href=https://github.com/pro4tlzz/github.pro4tlzz.com/blob/main/ExportJamfObjectsXML.html>Source code</a>
-<p>Original source from https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/ExportJamfXML.html thanks to Gabriel Sroka for helping me!</p>
-<script id=code>
-(function () {
-    const paths = location.pathname.split('/');
-    const folder = paths.length > 2 ? '/' + paths[1] : '';
 
-    if (location.pathname.match('/smartComputerGroups.html')) {
-        var obj = 'computergroup';
-        var path = 'computergroups';
-    } else if (location.pathname.match('/policies.html')) {
-        obj = 'policy';
-        path = 'policies';
-    } else if (location.pathname.match('/patchDeployment.html')) {
-        obj = 'patch-policy';
-        path = 'patchpolicies';
-    } else {
-        return;
-    }
+<body></body>
 
-    const id = new URLSearchParams(location.search).get('id');
-    if (!id) {
-        alert('pick a ' + obj + ' first');
-        return;
-    }
-
-    addDownloadItemButton(obj);
-
-    function addDownloadItemButton(obj){
-        const newButton = document.createElement('download-item-button');
-        newButton.innerHTML = '<div [j-navigation-tooltip]="{ shortcut: \'CMD-D\' }" > <button id="download-item-button" type="button" class="download-jamf-button-rockstar" translate="DOWNLOAD" onclick=main()>Download item</button></div>';
-        const downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
-        console.log(downloadItemButton);
-        downloadItemButton.addEventListener("click", function () {
-            const accessToken = getAccessToken();
-            getObject(accessToken);
-        });
-    }
-
-    function getAccessToken() {
-        const authInfo = JSON.parse(localStorage.authToken);
-        if (authInfo) {
-            return authInfo.token;     
-        } else {
-            alert('Couldn\'t find token, maybe refresh page');
-        }
-    }
-
-    async function getObject(accessToken) {
-        const url = folder + '/JSSResource/' + path + '/id/' + id;
-        const headers = {
-            'accept': 'application/xml',
-            'content-type': 'applicaton/xml',
-            'authorization': 'Bearer ' + accessToken
-        };
-        const response = await fetch(url, {headers});
-        const str = await response.text();
-        const indented = indentXml(str, 4);
-        const filename = obj + '-' + id + '.xml';
-        download(indented, 'text/xml', filename);
-    }
-
-    function indentXml(xml, size) {
-        const lines = xml.replace(/></g, '>\n<').split('\n');
-        var level = 0;
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            var end = line.match('</');
-            var empty = line.match('/>') || line.match(/>.*</);
-            if (end && !empty) level--;
-            lines[i] = ' '.repeat(size * level) + line;
-            if (!end && !empty) level++;
-        }
-        return lines.join('\n');
-    }
-
-    function download(content, type, filename) {
-        const a = document.body.appendChild(document.createElement('a'));
-        a.href = URL.createObjectURL(new Blob([content], {type}));
-        a.download = filename;
-        a.click();
-    }
-})
-</script>
-<script>
-bm.href = 'javascript:' + code.innerText + '();';
-</script>
-</body>
 </html>

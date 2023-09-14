@@ -1,105 +1,17 @@
-<!-- Original source from https://github.com/pro4tlzz/ITSupportTools/blob/main/javascript/cloneSourceAppKidToTargetApp.js thanks to Gabriel Sroka for helping me!-->
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-<meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
-<title>Clone application signing keys to another application</title>
-<style>
-body {
-    font-family: sans-serif;
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <meta http-equiv="refresh" content="0; URL='https://github.pro4tlzz.com'" /> -->
+    <script type="text/javascript">
+        window.location.href = "https://github.pro4tlzz.com/okta/CloneApplicationSigningKeyToAnotherApp.html"
+    </script>
+    <title>404 - 301 redirect</title>
 </head>
-<body>
-<h1>Clone application signing keys to another application</h1>
-<p>This tool will clone application signing keys to another applicatiom. You might have a use case for having 2 or more SAML applications in Okta which need to use the same signing certificate. The Okta Apps API allows you to copy an application signing key to another app. Here is a script which can clone the signing certificate from an application and assign it to another application.</p>
-<b>Setup</b>
-<ol>
-<li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the title bar and click Bookmarks Toolbar.
-<li>Drag/drop this <a id=bm>Clone application signing keys to another applications</a> to the bookmarks toolbar.
-</ol>
-<br>
-<b>Usage</b>
-<ol>
-<li>Create the target SAML app in Okta and configure the settings for the application (Only configure the app in Okta, not in the Service Provider).
-<li>Browse to the primary application in Okta Admin from where you want to clone the signing certificate.
-<li>Click the created bookmark to run the script.
-<li>Enter the id of the Target App when prompted.
-<li>Profit.
-<a href="https://github.com/pro4tlzz/ITSupportTools/tree/main/javascript#clone-application-signing-keys-to-another-application">See this for picture guide</a>
-</ol>
-<br>
-<a href=https://github.com/pro4tlzz/github.pro4tlzz.com/blob/main/cloneSourceAppKidToTargetApp.html>Source code</a>
-<script id=code>
-(async function() {
-    const targetAppId = prompt("Enter the target application id");
-    if (!targetAppId) {
-        alert("No value provided");
-        return;
-    }
-    const headers = {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'X-Okta-XsrfToken': document.querySelector('#_xsrfToken').innerText
-    };
 
-    const appId = getAppId();     /* getAppId from URL like how Rockstar does it */
-    const sourceApp = await getApp(appId);
-    const targetApp = await getApp(targetAppId);
+<body></body>
 
-    postSourceAppKidToTarget(sourceApp, targetApp);     /* Clone source app primary kid to target app */
-    updateTargetAppPrimaryKid(sourceApp, targetApp);     /* Switch target app primary kid to source app primary kid */
-
-    alert('Please open browser console for results, Option + ⌘ + J (on macOS), or Shift + CTRL + J (on Windows/Linux)');
-
-    async function getApp(appId) {
-        const url = '/api/v1/apps/' + appId;
-        console.log(url);
-        const r = await fetch(url);
-        console.log(r.ok, r.status);
-        const app = await r.json();
-        return app;
-    }
-
-    async function postSourceAppKidToTarget(sourceApp, targetApp) {
-        const url = '/api/v1/apps/' + sourceApp.id + '/credentials/keys/' + sourceApp.credentials.signing.kid + '/clone?targetAid=' + targetApp.id;
-        console.log(url);
-        const r = await fetch(url, {
-            method: 'post',
-            headers
-        });
-        console.log(r.ok, r.status);
-        const clone = await r.json();
-        console.log(clone);
-    }
-
-    async function updateTargetAppPrimaryKid(sourceApp, targetApp) {
-        const url = '/api/v1/apps/' + targetApp.id;
-        console.log(url);
-        targetApp.credentials.signing.kid = sourceApp.credentials.signing.kid;
-        const body = JSON.stringify(targetApp);
-        const r = await fetch(url, {
-            method: 'put',
-            headers,
-            body
-        });
-        console.log(r.ok, r.status);
-        const update = await r.json();
-        console.log(update);
-    }
-
-    /* from Rockstar by Gabriel Sroka https://github.com/gabrielsroka/gabrielsroka.github.io/blob/master/rockstar/rockstar.js#L767 */
-    function getAppId() {
-        const path = location.pathname;
-        const pathparts = path.split('/');
-        if (path.match("admin/app") && (pathparts.length == 6 || pathparts.length == 7)) {
-            return pathparts[5];
-        }
-    }
-})
-</script>
-<script>
-bm.href = 'javascript:' + code.innerText + '();';
-</script>
-</body>
 </html>
