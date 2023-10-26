@@ -41,9 +41,9 @@
     addHealComputerButton();
 
     function addHealComputerButton() {
-        const newButton = document.createElement('heal-computer-button');
-        newButton.innerHTML = '<li class="shrink"> <a id="HealComputer" class="mdmCommandButton jamf-button" data-test-id="command-heal-computer"> <span id="spanHealComputer" translate="MANAGEMENT_COMMAND_HEAL_COMPUTER" class="ng-scope">Heal Computer</span>  </a> </li>';
-        const healComputerButton = document.querySelector('#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe').contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
+        const newButton = document.createElement("li");;
+        newButton.innerHTML = '<a id="redeployJamfManagementFramework" class="mdmCommandButton jamf-button" data-test-id="command-redeploy-jamf-management-framework"><span id="spanredeployJamfManagementFramework"">Redeploy Management Framework</span></a>';
+        const healComputerButton = document.querySelector("#main > div.router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
         healComputerButton.addEventListener("click", function () {
             const accessToken = getAccessToken();
             healComputer(accessToken);

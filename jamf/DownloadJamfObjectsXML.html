@@ -57,8 +57,8 @@ body {
 
     function addDownloadItemButton(obj){
         const newButton = document.createElement('download-item-button');
-        newButton.innerHTML = '<div [j-navigation-tooltip]="{ shortcut: \'CMD-D\' }" > <button id="download-item-button" type="button" class="download-jamf-button-rockstar" translate="DOWNLOAD" onclick=main()>Download item</button></div>';
-        const downloadItemButton = document.querySelector("#main-body-wrapper > div > div > jp-router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
+        newButton.innerHTML = '<div [j-navigation-tooltip]="{ shortcut: \'CMD-D\' }" > <button id="download-item-button" type="button" class="download-jamf-button-rockstar" translate="DOWNLOAD">Download item</button></div>';
+        const downloadItemButton = document.querySelector("#main > div.router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('desktop-buttons')[0].appendChild(newButton);
         console.log(downloadItemButton);
         downloadItemButton.addEventListener("click", function () {
             const accessToken = getAccessToken();
