@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta name="viewport" content="initial-scale=1.0, minimum-scale=0.25">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Redeploy the Jamf Management Framework for a Computer</title>
     <style>
         body {
@@ -13,7 +13,8 @@
 
 <body>
     <h1>Redeploy the Jamf Management Framework for a Computer</h1>
-    <p>This adds a button to redeploy the Jamf Management Framework for computers. Enrollment policies may trigger as a result of this.</p>
+    <p>This adds a button to redeploy the Jamf Management Framework for computers. Enrollment policies may trigger as a
+        result of this.</p>
     <b>Setup</b>
     <ol>
         <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the
@@ -29,56 +30,57 @@
         <li>Press the magic button.
     </ol>
     <br>
-    <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamf/RedeployTheJamfManagementFramework.html>Source code</a>
-<script id=code>
-(async function () {
-    const id = new URLSearchParams(location.search).get('id');
-    if (!id) {
-        alert('Go to a computer record first');
-        return;
-    }
+    <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamf/RedeployTheJamfManagementFramework.html>Source
+        code</a>
+    <script id=code>
+        (async function () {
+            const id = new URLSearchParams(location.search).get('id');
+            if (!id) {
+                alert('Go to a computer record first');
+                return;
+            }
 
-    addHealComputerButton();
+            addHealComputerButton();
 
-    function addHealComputerButton() {
-        const newButton = document.createElement("li");;
-        newButton.innerHTML = '<a id="redeployJamfManagementFramework" class="mdmCommandButton jamf-button" data-test-id="command-redeploy-jamf-management-framework"><span id="spanredeployJamfManagementFramework"">Redeploy Management Framework</span></a>';
-        const healComputerButton = document.querySelector("#main > div.router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
-        healComputerButton.addEventListener("click", function () {
-            const accessToken = getAccessToken();
-            healComputer(accessToken);
-        });
-    }
+            function addHealComputerButton() {
+                const newButton = document.createElement("li");;
+                newButton.innerHTML = '<a id="redeployJamfManagementFramework" class="mdmCommandButton jamf-button" data-test-id="command-redeploy-jamf-management-framework"><span id="spanredeployJamfManagementFramework"">Redeploy Management Framework</span></a>';
+                const healComputerButton = document.querySelector("#main > div.router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
+                healComputerButton.addEventListener("click", function () {
+                    const accessToken = getAccessToken();
+                    healComputer(accessToken);
+                });
+            }
 
-    function getAccessToken() {
-        const authInfo = JSON.parse(localStorage.authToken);
-        if (authInfo) {
-            return authInfo.token;
-        } else {
-            alert('Couldn\'t find api token, maybe refresh page');
-        }
-    }
+            function getAccessToken() {
+                const authInfo = JSON.parse(localStorage.authToken);
+                if (authInfo) {
+                    return authInfo.token;
+                } else {
+                    alert('Couldn\'t find api token, maybe refresh page');
+                }
+            }
 
-    async function healComputer(accessToken) {
-        const url = '/api/v1/jamf-management-framework/redeploy/' + id;
-        const headers = {
-            'accept': 'application/json',
-            'authorization': 'Bearer ' + accessToken
-        };
-        const response = await fetch(url, { method: 'POST', headers });
-        const result = await response.json();
-        console.log(result);
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            alert('Request failed with error code ' + response.status);
-        }
-    }
-})
-</script>
-<script>
-bm.href = 'javascript:' + code.innerText + '();';
-</script>
+            async function healComputer(accessToken) {
+                const url = '/api/v1/jamf-management-framework/redeploy/' + id;
+                const headers = {
+                    'accept': 'application/json',
+                    'authorization': 'Bearer ' + accessToken
+                };
+                const response = await fetch(url, { method: 'POST', headers });
+                const result = await response.json();
+                console.log(result);
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Request failed with error code ' + response.status);
+                }
+            }
+        })
+    </script>
+    <script>
+        bm.href = 'javascript:' + code.innerText + '();';
+    </script>
 </body>
 
 </html>
