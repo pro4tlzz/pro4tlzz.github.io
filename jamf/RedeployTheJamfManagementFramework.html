@@ -14,73 +14,131 @@
 
 <body>
     <h1>Redeploy the Jamf Management Framework for a Computer</h1>
-    <p>This adds a button to redeploy the Jamf Management Framework for computers. Enrollment policies may trigger as a
-        result of this.</p>
+    <p>This bookmarklet allows you to redeploy the Jamf Management Framework for a computer directly from its record page in Jamf Pro. Enrollment policies may trigger as a result of this action.</p>
+    
     <b>Setup</b>
     <ol>
-        <li>Show your bookmarks toolbar. In Chrome, … > Bookmarks > Show Bookmarks Bar. In Firefox, right-click in the
-            title bar and click Bookmarks Toolbar.
-        <li>Drag/drop this <a id=bm>Redeploy the Jamf Management Framework for a Computer</a> to the bookmarks toolbar.
+        <li>Ensure your browser's bookmarks toolbar is visible.
+            <ul>
+                <li>In Chrome: Go to View > Always Show Bookmarks Bar (or Ctrl+Shift+B / Cmd+Shift+B).</li>
+                <li>In Firefox: Right-click in the title bar area and check "Bookmarks Toolbar". Or View > Toolbars > Bookmarks Toolbar.</li>
+                <li>In Edge: Go to Settings and more (...) > Settings > Appearance > Show favorites bar (set to "Always").</li>
+                <li>In Safari: Go to View > Show Favorites Bar.</li>
+            </ul>
+        </li>
+        <li>Drag and drop this link to your bookmarks toolbar: <a id="bm">Redeploy Jamf Framework</a>
+            </li>
     </ol>
     <br>
     <b>Usage</b>
     <ol>
-        <li>Open Jamf and sign in.
-        <li>Select a Computer and then go to management commands.
-        <li>Press the bookmark you made.
-        <li>Press the magic button.
+        <li>Open Jamf Pro and sign in.</li>
+        <li>Navigate to the inventory record of the computer for which you want to redeploy the management framework. Ensure you are on a page where the computer's ID is present in the URL (e.g., `computers.html?id=123&o=r`).</li>
+        <li>Click the "Redeploy Jamf Framework" bookmarklet that you added to your toolbar.</li>
+        <li>The script will then automatically attempt to redeploy the Jamf Management Framework for that computer.
+            <ul>
+                <li>If successful, the page should reload, or you might see a confirmation from Jamf Pro depending on its behavior.</li>
+                <li>If there's an issue (e.g., you're not on a computer record, or your Jamf Pro session token cannot be found), an alert message will appear.</li>
+            </ul>
+        </li>
     </ol>
     <br>
-    <a href=https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamf/RedeployTheJamfManagementFramework.html>Source
-        code</a>
-    <script id=code>
-        (async function () {
-            const id = new URLSearchParams(location.search).get('id');
-            if (!id) {
-                alert('Go to a computer record first');
-                return;
+    <a href="https://github.com/pro4tlzz/pro4tlzz.github.io/blob/main/jamf/RedeployTheJamfManagementFramework.html">Source
+        code (Original)</a>
+    
+    <script id="code">
+(async function () {
+    // Ensure we are on a page with a computer ID in the URL search parameters
+    const id = new URLSearchParams(location.search).get('id');
+    if (!id) {
+        alert('Action aborted: Could not find a computer ID in the current URL. Please navigate to a specific computer record in Jamf Pro.');
+        return;
+    }
+
+    // Define helper functions first
+    function getAccessToken() {
+        try {
+            // Attempt to get the auth token from localStorage, common in Jamf Pro
+            const authInfo = JSON.parse(localStorage.authToken);
+            if (authInfo && authInfo.token) {
+                return authInfo.token;
+            } else {
+                alert('Action aborted: Could not find Jamf Pro API token. Please ensure you are logged into Jamf Pro. You may need to refresh the page and try again.');
+                return null; // Return null if token is not found
             }
+        } catch (e) {
+            alert('Action aborted: Error accessing Jamf Pro API token from localStorage. Ensure you are logged in.');
+            console.error("Error parsing authToken from localStorage:", e);
+            return null;
+        }
+    }
 
-            addHealComputerButton();
+    async function healComputer(accessToken) {
+        // Construct the API URL for redeploying the framework
+        const url = `/api/v1/jamf-management-framework/redeploy/${id}`;
+        const headers = {
+            'Accept': 'application/json', // Corrected 'accept' to 'Accept' for common practice
+            'Authorization': `Bearer ${accessToken}` // Corrected 'authorization' and used template literal
+        };
 
-            function addHealComputerButton() {
-                const newButton = document.createElement("li");;
-                newButton.innerHTML = '<a id="redeployJamfManagementFramework" class="mdmCommandButton jamf-button" data-test-id="command-redeploy-jamf-management-framework"><span id="spanredeployJamfManagementFramework"">Redeploy Management Framework</span></a>';
-                const healComputerButton = document.querySelector("#main > div.router-outlet-holder > jp-inner-frame > iframe").contentWindow.document.getElementsByClassName('wrap horizontal grid-block no-margin')[0].appendChild(newButton);
-                healComputerButton.addEventListener("click", function () {
-                    const accessToken = getAccessToken();
-                    healComputer(accessToken);
-                });
-            }
-
-            function getAccessToken() {
-                const authInfo = JSON.parse(localStorage.authToken);
-                if (authInfo) {
-                    return authInfo.token;
+        try {
+            const response = await fetch(url, { method: 'POST', headers });
+            
+            if (response.ok) {
+                console.log('Jamf Management Framework redeploy command sent successfully for computer ID:', id);
+                // Check if Jamf Pro gives a JSON response or just a success status
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) { // More robust check for JSON
+                    const result = await response.json();
+                    console.log('Response from server:', result);
+                    alert('Jamf Management Framework redeploy initiated successfully! The page will now reload.');
                 } else {
-                    alert('Couldn\'t find api token, maybe refresh page');
+                    // Handle cases where response is ok but not JSON (e.g. 202 Accepted, 204 No Content)
+                    alert(`Jamf Management Framework redeploy command acknowledged (Status: ${response.status}). The page will now reload.`);
                 }
+                window.location.reload(); // Reload the page to see updated status or logs
+            } else {
+                let errorMsg = `Request to redeploy framework failed with status: ${response.status} (${response.statusText}).`;
+                try {
+                    const errorResult = await response.json(); // Try to get more error details
+                    errorMsg += '\nDetails: ' + (errorResult.message || JSON.stringify(errorResult.errors || errorResult));
+                } catch (e) {
+                    // If parsing error response fails, stick with the status code and text
+                    const responseText = await response.text(); // Get raw text if not JSON
+                    if(responseText) errorMsg += '\nResponse: ' + responseText.substring(0, 200); // Show snippet of response
+                }
+                alert(errorMsg);
+                console.error('Error during healComputer:', errorMsg);
             }
+        } catch (error) {
+            console.error('Network or unexpected error during healComputer:', error);
+            alert(`An unexpected error occurred while trying to redeploy the framework: ${error.message}. Check the console for more details.`);
+        }
+    }
 
-            async function healComputer(accessToken) {
-                const url = '/api/v1/jamf-management-framework/redeploy/' + id;
-                const headers = {
-                    'accept': 'application/json',
-                    'authorization': 'Bearer ' + accessToken
-                };
-                const response = await fetch(url, { method: 'POST', headers });
-                const result = await response.json();
-                console.log(result);
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Request failed with error code ' + response.status);
-                }
-            }
-        })
+    // --- Main execution logic ---
+    const accessToken = getAccessToken();
+    if (accessToken) { // Proceed only if accessToken was successfully retrieved
+        // Optional: Add a confirmation before proceeding
+        if (confirm(`Are you sure you want to redeploy the Jamf Management Framework for computer ID: ${id}?`)) {
+            await healComputer(accessToken); // Call healComputer directly
+        } else {
+            alert("Redeploy action cancelled by user.");
+        }
+    }
+    // If accessToken is null, getAccessToken() would have already alerted the user.
+})
     </script>
     <script>
-        bm.href = 'javascript:' + code.innerText + '();';
+        // This part creates the bookmarklet link.
+        // It takes the text content of the script with id="code", wraps it in 'javascript:' and '();' to make it executable.
+        var codeElement = document.getElementById('code');
+        var bmLink = document.getElementById('bm');
+        if (codeElement && bmLink) {
+            bmLink.href = 'javascript:' + encodeURIComponent(`(${codeElement.innerText.trim()})();`);
+        } else {
+            console.error("Could not find 'code' script element or 'bm' anchor element to create bookmarklet.");
+        }
     </script>
 </body>
 
